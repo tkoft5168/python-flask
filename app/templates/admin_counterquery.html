@@ -1,0 +1,106 @@
+{% if user_class == "管理者" %}
+    {% extends "admin_index.html" %}
+{% else %}
+    {% extends "sales.html" %}
+{% endif %}
+{% block content %}
+    {{ super() }}
+
+<!-- 模态框内容的占位符 -->
+<div id="modalPlaceholder"></div>
+
+<div id="modalPlaceholder2"></div>
+
+<div id="modalPlaceholder3"></div>
+
+
+<div class="mx-auto mt-5">
+    <br><br>
+    <h1 style = "color:rgb(40, 158, 226)" >張數記錄</h1>
+
+
+    <form  class="row gx-3 gy-2 align-items-center" id="areaReportCounterForm"  >
+        <div  class="col-auto" >
+            <label for="startDate">開始日期:</label>
+            <input type="date"  value="2024-05-01" id="startDate" name="startDate" class="form-control" >
+        </div>
+        <div class="col-auto">
+            <label for="endDate">结束日期:</label>
+            <input type="date" id="endDate" name="endDate" class="form-control">
+        </div>
+        <div class="col-auto">
+            <label for="queryAreaCounterType">區域:</label>
+            <select id="queryAreaCounterType" name="queryAreaCounterType"  class="form-control"  >
+                <option value="" disabled selected>請選擇區域</option>
+                <option value="斗六區">斗六區</option>
+                <option value="斗南區">斗南區</option>
+                <option value="虎尾區">虎尾區</option>
+                <option value="西螺區">西螺區</option>
+                <option value="雲科大">雲科大</option>
+            </select>
+            
+          </div>
+        <div class="col-auto">
+          <label for="customerName">客户名稱:</label>
+          <input type="text"  id="customerName" name="customerName" list="customerNameList" placeholder="請輸入客戶名稱或關鍵字" class="form-control" >
+          <datalist id="customerNameList"></datalist>
+          
+        </div>
+        <div class="col-auto ">
+        <button type="submit" id="areaCounterButton" name="areaCounterButton" class="btn btn-primary btn-lg">查詢</button>
+        </div>
+    </form>
+    <br><br>
+    <div class="progress"  id="progressBarContainer" name="progressBarContainer" style="display:none;" >
+        <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar"  name="progressBar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+    <!-- 在 areareportcounter.html 中 -->
+<div class="h2 row gx-3 gy-2 align-items-center" id="areaCounterResult" style="display:none; ">
+    黑白張數：<a id="areaBcounter" style = "color:rgb(243, 14, 14)"> </a>
+    彩色張數：<a id="areaCcounter"style = "color:rgb(243, 14, 14)"></a>
+    黑白月平均張數：<a id="areaBavgcounter"style = "color:rgb(243, 14, 14)"></a>
+    彩色月平均張數：<a id="areaCavgcounter"style = "color:rgb(243, 14, 14)"></a>
+</div>
+
+
+<div id="areaCounterResult" style="display:none;"></div>
+  <!-- 单个客户的统计表格 -->
+  <table id="areaReportCounterTable" class="table table-bordered">
+    <thead class="table-primary">
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">日期</th>
+            <th scope="col">客戶名稱</th>
+            <th scope="col">機號</th>
+            <th scope="col">機型</th>
+            <th scope="col">黑白計數器</th>
+            <th scope="col">彩色計數器</th>
+            <th scope="col">彩色計數器2</th>
+            <th scope="col">維修內容</th>
+            <th scope="col">黑白張數</th>
+            <th scope="col">彩色張數</th>
+          </tr>
+      </thead>
+      <tbody>
+      </tbody>
+  </table>
+
+  <!-- 多客户的统计表格 -->
+  <table id="multipleClientsTable" class="table table-bordered" style="display:none;">
+    <thead class="table-primary">
+          <tr>
+              <th>客戶名稱</th>
+              <th>黑白總張數</th>
+              <th>彩色總張數</th>
+              <th>黑白月平均張數</th>
+              <th>彩色月平均張數</th>
+              <th>統計區間</th>
+              <th>統計月份</th>
+          </tr>
+      </thead>
+      <tbody>
+      </tbody>
+  </table>
+</div>
+
+{% endblock %}

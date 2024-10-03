@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+    <br><br>
+    <title>日報表- {{ customer_name }}</title>
+    <!-- 引入Bootstrap CSS -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- 引入Bootstrap Icons CSS -->
+    <link href="{{ url_for('static', filename='css/bootstrap-icons.css') }}" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+</head>
+<body>
+    <h1 style = "color :rgb(7, 55, 187)">{{ customer_name }}</h1>
+
+                <table class="table table-bordered" id="clientReportTable">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>日期</th>
+                            <th>客戶名稱</th>
+                            <th>機號</th>
+                            <th>機型</th>
+                            <th>黑白計數器</th>
+                            <th>彩色計數器</th>
+                            <th>彩色計數數2</th>
+                            <th>更換零件料號</th>
+                            <th>數量</th>
+                            <th>維修情況</th>
+                            <!-- 在此添加其他日報表字段的表頭 -->
+                        </tr>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
+                    <tr>
+                        <td>{{ report[0] }}</td>
+                        <td>{{ report[1] }}</td>
+                        <td>{{ report[2] or "" }}</td>
+                        <td>{{ report[3] or ""}}</td>
+                        <td>{{ report[4] or ""}}</td>
+                        <td>{{ report[5] or ""}}</td>
+                        <td>{{ report[6] or "" }}</td>
+                        <td>{{ report[7] or ""}}</td>
+                        <td>{{ report[8] or ""}}</td>
+                        <td>{{ report[9] or ""}}</td>
+                        <!-- 其他數據 -->
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div id="footer" style="text-align: center">
+            &copy; Copyright 2024 by 南.
+        </div>
+    
+        </body>
+        <script src="{{ url_for('static', filename='css/bootstrap.bundle.min.js') }}"></script>
+        </html>
