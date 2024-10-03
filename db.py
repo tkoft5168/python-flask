@@ -3,7 +3,7 @@ import mysql.connector
 def get_db_connection():
     try:
         conn = mysql.connector.connect(
-            host='localhost',
+            host='mysql9893.myasus.com',
             user='admin',
             password='19931014',
             database='user'
@@ -15,7 +15,7 @@ def get_db_connection():
 def get_db_copier_connection():
     try:
         conn = mysql.connector.connect(
-            host='localhost',
+            host='mysql9893.myasus.com',
             user='admin',
             password='19931014',
             database='copier'
