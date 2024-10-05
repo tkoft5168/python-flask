@@ -1,0 +1,79 @@
+{% if user_class == "管理者" %}
+    {% extends "admin_index.html" %}
+{% else %}
+    {% extends "sales.html" %}
+{% endif %}
+{% block content %}
+    {{ super() }}
+
+    <div id="modalPlaceholder3"></div>
+
+<div class="mx-auto mt-5">
+    <h1 style = "color:rgb(77, 182, 103)" >全區客戶名單</h1>
+    <div class="d-flex">
+        <input class="form-control me-2 " id="allSearchInput" type="search" placeholder="請輸入關鍵字" aria-label="Search">
+    </div>
+    <br>
+    <table class="table table-bordered" id="allModifyClientTable" >
+        <thead class="table-primary">
+          <tr>
+            <th scope="col">編號</th>
+            <th scope="col">ID</th>           
+            <th scope="col">客戶所在區</th>
+            <th scope="col">客戶名稱</th>
+            <th scope="col">機號</th>
+            <th scope="col">機型</th>
+            <th scope="col">廠牌</th>
+            <th scope="col">類型</th>
+            <th scope="col">IP位置</th>
+            <th scope="col">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 数据会追加到这里 -->
+        </tbody>
+      </table>
+    </div>
+
+<!-- 編輯客戶模態框 -->
+<div class="modal fade" id="allEditCustomerModal" tabindex="-1" aria-labelledby="allEditCustomerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="allEditCustomerModalLabel">編輯客戶</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="allEditCustomerForm">
+                    <div class="mb-3">
+                        <label for="allEditCustomerName" class="form-label">客戶名稱</label>
+                        <input type="text" class="form-control" id="allEditCustomerName">
+                    </div>
+                    <div class="mb-3">
+                        <label for="allEditCustomerMachineNumber" class="form-label">機號</label>
+                        <input type="text" class="form-control" id="allEditCustomerMachineNumber">                       
+                    </div>
+                    <div class="mb-3">
+                        <label for="allEditCustomerModel" class="form-label">機型</label>
+                        <input type="text" class="form-control" id="allEditCustomerModel">
+                    </div>
+                    <div class="mb-3">
+                        <label for="allEditCustomer" class="form-label">廠牌</label>
+                        <input type="text" class="form-control" id="allEditCustomer">
+                    </div>
+                    <div class="mb-3">
+                        <label for="allEditCustomerType" class="form-label">類型</label>
+                        <input type="text" class="form-control" id="allEditCustomerType">
+                    </div>
+                    <div class="mb-3">
+                        <label for="allEditCustomerIp" class="form-label">IP位置</label>
+                        <input type="text" class="form-control" id="allEditCustomerIp">
+                    </div>
+                    <button type="button" class="btn btn-primary" id="allSaveEditCustomerButton">保存修改</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

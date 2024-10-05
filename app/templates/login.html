@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登錄</title>
+    <!-- 引入Bootstrap CSS -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+     <!-- 引入Bootstrap Icons CSS -->
+     <link href="{{ url_for('static', filename='css/bootstrap-icons.css') }}" rel="stylesheet">
+
+    <style>
+        /* 使容器全屏高度，并使其内容垂直居中 */
+        .full-height {
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="container d-flex justify-content-center align-items-center full-height">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body"  style="background-color: hsl(203, 39%, 88%);">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-person-bounding-box" style="font-size: 2rem; color: rgb(2, 56, 156);"></i>
+                        <h1 class="d-inline-block ms-2">登錄</h1>
+                    </div>
+                        <form action="{{ url_for('login') }}" method="POST">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label" style="font-size: 20px"  >帳號</label>
+                                    <input type="text" class="form-control" id="username" name="username" required >
+                                        <div id="emailHelp" class="form-text">請輸入帳號</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password" class="form-label" style="font-size: 20px">密碼</label>
+                                    <input type="password" class="form-control" id="password" name="password" maxlength="20" required>
+                                    <div class="col-auto">
+                                        <span id="passwordHelpInline" class="form-text">
+                                        長度必須為 1-20 個字元。
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary">登錄</button>
+                                </div>
+                        </form>
+                        {% with messages = get_flashed_messages() %}
+                            {% if messages %}
+                                <div class="alert alert-danger mt-3">
+                                    {% for message in messages %}
+                                        <p>{{ message }}</p>
+                                        {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                </div>
+            </div>
+    </div>
+    <!-- 引入Bootstrap JS -->
+    <script src="{{ url_for('static', filename='css/bootstrap.bundle.min.js') }}"></script>
+</body>
+</html>

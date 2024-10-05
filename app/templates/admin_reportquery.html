@@ -1,0 +1,106 @@
+{% extends "admin_index.html" %}
+
+{% block content %}
+    {{ super() }}
+
+    <div id="modalPlaceholder3"></div>
+
+    <div class="mx-auto mt-5">
+        <h1 style = "color:rgb(227, 230, 95)" >報表查詢</h1>
+        <form  class="row gx-3 gy-2 align-items-center" id="areaQueryForm" action="/query_area_report" method="post">
+            <div  class="col-auto" >
+                <label for="startDate">開始日期:</label>
+                <input type="date"  id="startDate" name="startDate" class="form-control" >
+            </div>
+            <div class="col-auto">
+                <label for="endDate">结束日期:</label>
+                <input type="date" id="endDate" name="endDate" class="form-control">
+            </div>
+            <div class="col-auto">
+                <label for="queryAreaType">區域:</label>
+                <select id="queryAreaType" name="queryAreaType"  class="form-control"  >
+                    <option value="" disabled selected>請選擇區域</option>
+                    <option value="斗六區">斗六區</option>
+                    <option value="斗南區">斗南區</option>
+                    <option value="虎尾區">虎尾區</option>
+                    <option value="西螺區">西螺區</option>
+                    <option value="雲科大">雲科大</option>
+                </select>
+                
+              </div>
+            <div class="col-auto">
+              <label for="customerName">客户名稱:</label>
+              <input type="text"  id="customerName" name="customerName" list="customerNameList" placeholder="請輸入客戶名稱或關鍵字" class="form-control" >
+              <datalist id="customerNameList"></datalist>
+              
+            </div>
+    
+            <div class="col-auto">
+                <label for="model">機型:</label>
+                <input type="text" id="model" name="model" class="form-control">
+            </div>
+            <div class="col-auto">
+                <label for="partNumber">零件料號:</label>
+                <input type="text" id="partNumber" name="partNumber" class="form-control">
+            </div>
+            <div class="col-auto">
+                <label for="repairContent">维修内容:</label>
+                <input type="text" id="repairContent" name="repairContent" class="form-control">
+            </div>
+            <div class="col-auto ">
+            <button type="submit" class="btn btn-primary btn-lg">查詢</button>
+            </div>
+        </form>
+        <br><br>
+    </div>
+    {% if error %}
+    <div class="alert alert-warning" role="alert">
+        請選擇區域
+    </div>
+    {% endif %}
+
+    {% if show_results %}
+    {% if reports %}
+        <table class="table table-bordered" id="queryReportTable">
+            <thead class="table-primary">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">日期</th>
+                    <th scope="col">客戶名稱</th>
+                    <th scope="col">機號</th>
+                    <th scope="col">機型</th>
+                    <th scope="col">黑白計數器</th>
+                    <th scope="col">彩色計數器</th>
+                    <th scope="col">彩色計數器2</th>
+                    <th scope="col">零件料號</th>
+                    <th scope="col">數量</th>
+                    <th scope="col">維修內容</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                <tr>
+                    <td>{{ report[10] }}</td>
+                    <td>{{ report[0] }}</td>
+                    <td>{{ report[1] }}</td>
+                    <td>{{ report[2] or "" }}</td>
+                    <td>{{ report[3] or "" }}</td>
+                    <td>{{ report[4] or "" }}</td>
+                    <td>{{ report[5] or "" }}</td>
+                    <td>{{ report[6] or "" }}</td>
+                    <td>{{ report[7] or "" }}</td>
+                    <td>{{ report[8] or "" }}</td>
+                    <td>{{ report[9] or "" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-warning" role="alert">
+            未找到匹配的記錄，請檢查您的查詢條件。
+        </div>
+    {% endif %}
+{% endif %}
+
+
+{% endblock %}
