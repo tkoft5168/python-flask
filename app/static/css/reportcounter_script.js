@@ -115,15 +115,7 @@ const areaReportCounterForm = document.getElementById('areaReportCounterForm');
         e.preventDefault();
         
         const formData = new FormData(areaReportCounterForm);
-        const progressBarContainer = document.getElementById('progressBarContainer');
-        const progressBar = document.getElementById('progressBar');
-
-          // 顯示進度條，並初始化寬度
-          progressBarContainer.style.display = 'block';
-          progressBar.style.width = '0%';
-  
-          // 開始查詢過程，模擬進度更新
-          simulateProgressUpdate();
+        
   
         fetch("/area_report_counter", {
             method: "POST",
@@ -144,26 +136,12 @@ const areaReportCounterForm = document.getElementById('areaReportCounterForm');
 
             }
 
-            // 查詢完成，隱藏進度條
-            progressBarContainer.style.display = 'none';
+
         })
         .catch(error => console.error("Error:", error));
-        progressBarContainer.style.display = 'none';
+
     });
 
-
-        function simulateProgressUpdate() {
-            let progress = 0;
-            const interval = setInterval(function() {
-                if (progress < 90) {  // 進度條可以到90%，等待查詢完成後滿100%
-                    progress += 10;
-                    progressBar.style.width = progress + '%';
-                    progressBar.setAttribute('aria-valuenow', progress);
-                } else {
-                    clearInterval(interval);  // 查詢完成後會停止進度更新
-                }
-            }, 300);  // 每300毫秒增加10%的進度
-        }
 }
 
 
