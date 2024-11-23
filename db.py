@@ -5,7 +5,7 @@ def get_db_connection():
         conn = mysql.connector.connect(
             host='minnengreport.ddns.net',
             user='admin',
-            password='19931014',
+            password='Ming9893',
             database='user'
         )
         return conn
@@ -17,7 +17,7 @@ def get_db_copier_connection():
         conn = mysql.connector.connect(
             host='minnengreport.ddns.net',
             user='admin',
-            password='19931014',
+            password='Ming9893',
             database='copier'
         )
         return conn
