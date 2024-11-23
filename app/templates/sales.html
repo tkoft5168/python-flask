@@ -94,11 +94,19 @@
     
     <!-- Custom styles for this template -->
     <link href="{{ url_for('static', filename='css/bootstrap-icons.css')}}" rel="stylesheet">
-
+ <!-- Template Stylesheet -->
+ <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 
   </head>
   <body>
-    
+        <!-- 加载指示器 -->
+<div id="loadingIndicator">
+  <div class="loading-text">請稍候...</div>
+    <div class="spinner" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
 
 <header class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow" data-bs-theme="dark">
   <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white" href="#">業務查詢區</a>
@@ -176,7 +184,10 @@
       {% block content %}
       {% endblock %}
       <script src="{{ url_for('static', filename='css/dashboard.js') }}"></script>
+      <script src="{{ url_for('static', filename='css/addclient_script.js') }}"></script>
       <script src="{{ url_for('static', filename='css/modifyclient_script.js') }}"></script> <!-- 引用自定义修改客戶JS文件 -->
+      <script src="{{ url_for('static', filename='css/machinenumber_script.js') }}"></script> <!-- 引用自定义機號JS文件 -->
+      <script src="{{ url_for('static', filename='css/queryreport_script.js') }}"></script> <!-- 引用自定义查詢報表JS文件 -->
       <script src="{{ url_for('static', filename='css/reportcounter_script.js') }}"></script> <!-- 引用自定义查詢張數JS文件 -->
       <script src="{{ url_for('static', filename='css/modal_script.js') }}"></script> <!-- 引用自定义訊息框JS文件 -->
 </html>
