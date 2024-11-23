@@ -3,9 +3,9 @@ import mysql.connector
 def get_db_connection():
     try:
         conn = mysql.connector.connect(
-            host='minnengreport.ddns.net',
+            host='localhost',
             user='admin',
-            password='Ming9893',
+            password='19931014',
             database='user'
         )
         return conn
@@ -15,9 +15,9 @@ def get_db_connection():
 def get_db_copier_connection():
     try:
         conn = mysql.connector.connect(
-            host='minnengreport.ddns.net',
+            host='localhost',
             user='admin',
-            password='Ming9893',
+            password='19931014',
             database='copier'
         )
         return conn
