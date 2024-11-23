@@ -164,6 +164,21 @@ def report_counter():
         'cavgcounter': average_color_count
     })
 
+# API端点：获取客户名称列表
+@app.route('/api/get_reportcounterclient_names', methods=['GET'])
+def get_reportcounterclient_names():
+    user_class = session.get('class')
+    if not user_class:
+        return jsonify({'error': '找不到使用者類別'}), 400
+    table_name = get_table_name(user_class)
+    conn = get_db_copier_connection()
+    cursor = conn.cursor()
+    cursor.execute(f'SELECT `客戶名稱` FROM `client_{table_name}`')
+    client_names = [row[0] for row in cursor.fetchall()]
+    cursor.close()
+    conn.close()
+    return jsonify({'client_names': client_names})
+
 
  # 管理者頁面張數查詢
 @app.route('/area_report_counter', methods=['POST'])

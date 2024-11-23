@@ -1,9 +1,9 @@
 from flask import render_template, request, redirect, url_for, flash, session 
-import pandas as pd
 from datetime import datetime
 from calendar import monthrange
 from app import app
 from db import get_db_connection,get_db_copier_connection
+
 
 @app.route('/')
 def index():
@@ -57,8 +57,7 @@ def admin_index():
     else:
         return  '', 404  # 返回无内容响应
     
-from datetime import datetime
-from flask import request, render_template, session
+
 
 @app.route('/admin/dashboard', methods=['GET', 'POST'])
 def admin_dashboard():

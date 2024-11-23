@@ -34,7 +34,7 @@ def check_client_exists():
 
     try:
         # 检查客户名称是否存在
-        cursor.execute(f'SELECT `機號`, `IP位置` FROM `CLIENT_{table_name}` WHERE `客戶名稱` = %s', (client_name,))
+        cursor.execute(f'SELECT `機號`, `IP位置` FROM `client_{table_name}` WHERE `客戶名稱` = %s', (client_name,))
         client_info = cursor.fetchone()
 
         if client_info:
@@ -73,7 +73,7 @@ def add_client():
     table_name = get_table_name(user_class)
     conn = get_db_copier_connection()
     cursor = conn.cursor()
-    cursor.execute(f'INSERT INTO `CLIENT_{table_name}` (`客戶名稱`, `機號`, `機型`, `IP位置`) VALUES (%s, %s, %s, %s) ', (client_name, machine_number, machine_model, ip_address) )
+    cursor.execute(f'INSERT INTO `client_{table_name}` (`客戶名稱`, `機號`, `機型`, `IP位置`) VALUES (%s, %s, %s, %s) ', (client_name, machine_number, machine_model, ip_address) )
     conn.commit()
     cursor.close()
     conn.close()

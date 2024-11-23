@@ -57,6 +57,16 @@ def edit_customer():
     cursor = conn.cursor()
 
     try:
+                # 获取未修改前的客户名称
+            cursor.execute(f"""
+                SELECT 客戶名稱 FROM client_{table_name} WHERE id = %s
+            """, ( data['id'],))
+            original_name = cursor.fetchone()
+            
+            if not original_name:
+                return jsonify({'error': '未找到該客戶'}), 404
+
+            original_name = original_name[0]  # 提取实际的名称
                 # 更新客戶資料
                     # Check if the new customer name already exists
             cursor.execute(f"""
@@ -78,6 +88,16 @@ def edit_customer():
                     data['new_Customer_Ip'],
                     data['id']
                 ))
+             # 更新報表中客戶名稱
+            cursor.execute(f"""
+                UPDATE report_{table_name}  
+                SET 客戶名稱 = %s
+                WHERE 客戶名稱 =  %s
+            """, 
+            (data['new_customer_name'], 
+              original_name))
+
+
             conn.commit()
              # 根據是否新增了機號返回相應的成功訊息
             return jsonify({'success': '客戶資料更新成功'}), 200
@@ -184,55 +204,126 @@ def get_customer_reports():
     # 渲染日報表页面，并传递数据
     return render_template('display_report.html', customer_name=customer_name, reports=reports)
 
-#全區修改客戶功能
-#  API端点：修改客戶中取得客户信息
 @app.route('/api/get_allcustomer_list', methods=['POST'])
 def allcustomer_list():
     user_class = session.get('class')
     if not user_class:
         return jsonify({'error': '找不到使用者類別'}), 400
-    conn = get_db_copier_connection()
-    cursor = conn.cursor()
-    cursor.execute(f"""
-                        SELECT                           
-                            CASE
-                                WHEN `客戶名稱` IN (SELECT `客戶名稱` FROM `client_yunlin`) THEN '雲科大'
-                                WHEN `客戶名稱` IN (SELECT `客戶名稱` FROM `client_douliu`) THEN '斗六區'
-                                WHEN `客戶名稱` IN (SELECT `客戶名稱` FROM `client_xiluo`) THEN '西螺區'
-                                WHEN `客戶名稱` IN (SELECT `客戶名稱` FROM `client_dounan`) THEN '斗南區'
-                                WHEN `客戶名稱` IN (SELECT `客戶名稱` FROM `client_huwei`) THEN '虎尾區'
-                                ELSE '未知'
-                            END AS `客戶所在區`,
-                            c.`客戶名稱`,
-                            c.`機號`,
-                            c.`機型`,
-                            m.`廠牌`,
-                            m.`類型`,
-                            c.`ip位置`,
-                            c.`id`
-                        FROM (
-                            SELECT `客戶名稱`, `機號`, `機型`, `ip位置` ,`id` FROM `client_yunlin`
-                            UNION ALL
-                            SELECT `客戶名稱`, `機號`, `機型`, `ip位置`,`id` FROM `client_douliu`
-                            UNION ALL
-                            SELECT  `客戶名稱`, `機號`, `機型`, `ip位置`,`id` FROM `client_xiluo`
-                            UNION ALL
-                            SELECT `客戶名稱`, `機號`, `機型`, `ip位置`,`id` FROM `client_dounan`
-                            UNION ALL
-                            SELECT `客戶名稱`, `機號`, `機型`, `ip位置`,`id` FROM `client_huwei`
-                        ) AS c
-                        LEFT JOIN `machine` AS m ON c.`機號` = m.`機號` OR (c.`機號` IS NULL AND c.`機型` = m.`機型`)
-                        GROUP BY c.`客戶名稱`, c.`機號`, c.`機型`, c.`ip位置`, `id`, m.`廠牌`, m.`類型`
-                        ORDER BY `客戶所在區`, c.`客戶名稱`, `機號`;
+    
+    try:
+        conn = get_db_copier_connection()
+        cursor = conn.cursor()
+        
+        query = """
+            SELECT                           
+                CASE
+                    WHEN `客戶名稱` IN (SELECT `客戶名稱` FROM `client_yunlin`) THEN '雲科大'
+                    WHEN `客戶名稱` IN (SELECT `客戶名稱` FROM `client_douliu`) THEN '斗六區'
+                    WHEN `客戶名稱` IN (SELECT `客戶名稱` FROM `client_xiluo`) THEN '西螺區'
+                    WHEN `客戶名稱` IN (SELECT `客戶名稱` FROM `client_dounan`) THEN '斗南區'
+                    WHEN `客戶名稱` IN (SELECT `客戶名稱` FROM `client_huwei`) THEN '虎尾區'
+                    ELSE '未知'
+                END AS `客戶所在區`,
+                c.`客戶名稱`,
+                c.`機號`,
+                c.`機型`,
+                m.`廠牌`,
+                m.`類型`,
+                c.`ip位置`,
+                c.`id`
+            FROM (
+                SELECT `客戶名稱`, `機號`, `機型`, `ip位置`, `id` FROM `client_yunlin`
+                UNION ALL
+                SELECT `客戶名稱`, `機號`, `機型`, `ip位置`, `id` FROM `client_douliu`
+                UNION ALL
+                SELECT `客戶名稱`, `機號`, `機型`, `ip位置`, `id` FROM `client_xiluo`
+                UNION ALL
+                SELECT `客戶名稱`, `機號`, `機型`, `ip位置`, `id` FROM `client_dounan`
+                UNION ALL
+                SELECT `客戶名稱`, `機號`, `機型`, `ip位置`, `id` FROM `client_huwei`
+            ) AS c
+            LEFT JOIN `machine` AS m 
+            ON c.`機號` = m.`機號` OR (c.`機號` IS NULL AND c.`機型` = m.`機型`)
+            GROUP BY c.`客戶名稱`, c.`機號`, c.`機型`, c.`ip位置`, `id`, m.`廠牌`, m.`類型`
+            ORDER BY `客戶所在區`, c.`客戶名稱`, `機號`;
+        """
+        
+        cursor.execute(query)
+        allclient_names = cursor.fetchall()
 
-            """)
-    allclient_names = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return jsonify({
-    'allclient_names': allclient_names,
-    'user_class': user_class
-    }), 200
+        return jsonify({
+            'allclient_names': allclient_names if allclient_names else [],  # 如果为空则返回空数组
+            'user_class': user_class
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/api/get_allcustomer_list_by_area', methods=['POST'])
+def get_allcustomer_list_by_area():
+    user_class = session.get('class')
+    if not user_class:
+        return jsonify({'error': '找不到使用者類別'}), 400
+
+    data = request.get_json()
+    area = data.get('area')
+    if not area:
+        return jsonify({'error': '缺少 area 參數'}), 400
+
+    area_table_map = {
+        '雲科大': 'client_yunlin',
+        '斗六區': 'client_douliu',
+        '西螺區': 'client_xiluo',
+        '斗南區': 'client_dounan',
+        '虎尾區': 'client_huwei'
+    }
+
+    table_name = area_table_map.get(area)
+    if not table_name:
+        return jsonify({'error': f'未知的區域：{area}'}), 400
+
+    try:
+        conn = get_db_copier_connection()
+        cursor = conn.cursor()
+
+        query = f"""
+            SELECT
+                '{area}' AS `客戶所在區`,  
+                c.`客戶名稱`,
+                c.`機號`,
+                c.`機型`,
+                m.`廠牌`,
+                m.`類型`,
+                c.`ip位置`,
+                c.`id`
+            FROM `{table_name}` AS c
+            LEFT JOIN `machine` AS m 
+            ON c.`機號` = m.`機號` OR (c.`機號` IS NULL AND c.`機型` = m.`機型`)
+            GROUP BY c.`客戶名稱`, c.`機號`, c.`機型`, c.`ip位置`, c.`id`, m.`廠牌`, m.`類型`
+            ORDER BY c.`客戶名稱`, `機號`;
+        """
+
+        cursor.execute(query)
+        allclient_names = cursor.fetchall()
+
+        return jsonify({
+            'allclient_names': allclient_names if allclient_names else [],  # 返回空数组以保持一致
+            'user_class': user_class
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+
 @app.route('/api/edit_allcustomer', methods=['POST'])
 def edit_allcustomer():
     data = request.json
@@ -245,6 +336,16 @@ def edit_allcustomer():
     
     try:
  
+                        # 获取未修改前的客户名称
+            cursor.execute(f"""
+                SELECT 客戶名稱 FROM client_{table_name} WHERE id = %s
+            """, ( data['id'],))
+            original_name = cursor.fetchone()
+            
+            if not original_name:
+                return jsonify({'error': '未找到該客戶'}), 404
+
+            original_name = original_name[0]  # 提取实际的名称
                 # 更新客戶資料
                     # Check if the new customer name already exists
             cursor.execute(f"""
@@ -266,6 +367,15 @@ def edit_allcustomer():
                     data['new_Customer_Ip'],
                     data['id']
                 ))
+             # 更新報表中客戶名稱
+            cursor.execute(f"""
+                UPDATE report_{table_name}  
+                SET 客戶名稱 = %s
+                WHERE 客戶名稱 =  %s
+            """, 
+            (data['new_customer_name'], 
+              original_name))
+
             conn.commit()
 
             return jsonify({'success': '客戶資料更新成功'}), 200

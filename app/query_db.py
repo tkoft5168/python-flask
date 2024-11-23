@@ -79,6 +79,21 @@ def query_report():
     return render_template('query_report.html',  reports=reports, user_class=user_class, show_results=True)
 
 
+# API端点：获取客户名称列表
+@app.route('/api/get_queryreportclient_names', methods=['GET'])
+def get_queryreportclient_names():
+    user_class = session.get('class')
+    if not user_class:
+        return jsonify({'error': '找不到使用者類別'}), 400
+    table_name = get_table_name(user_class)
+    conn = get_db_copier_connection()
+    cursor = conn.cursor()
+    cursor.execute(f'SELECT `客戶名稱` FROM `client_{table_name}`')
+    client_names = [row[0] for row in cursor.fetchall()]
+    cursor.close()
+    conn.close()
+    return jsonify({'client_names': client_names})
+
 @app.route('/reportsearch_customers')
 def reportsearch_customers():
     keyword = request.args.get('keyword', '')

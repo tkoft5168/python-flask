@@ -3,7 +3,6 @@ from app import app
 from db import get_db_copier_connection
 
 
-
 # 輔助函數：根據使用者的 class 獲取表格名稱
 def get_table_name(user_class):
     if user_class == "斗六區":
@@ -64,7 +63,7 @@ def get_client_info():
     table_name = get_table_name(user_class)
     conn = get_db_copier_connection()
     cursor = conn.cursor()
-    cursor.execute(f'SELECT `機號`, `機型`, `IP位置` FROM `CLIENT_{table_name}` WHERE `客戶名稱` = %s', (client_name,))
+    cursor.execute(f'SELECT `機號`, `機型`, `IP位置` FROM `client_{table_name}` WHERE `客戶名稱` = %s', (client_name,))
     client_info = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -72,15 +71,17 @@ def get_client_info():
     if not client_info:
         # 如果未找到客户信息，直接返回空响应
         return '', 204  # 204 表示成功但没有内容需要返回
-
-    return jsonify({
-        'machine_number': client_info[0],
-        'machine_model': client_info[1],
-        'ip_address': client_info[2]
-    })
+    else:
+        return jsonify({
+            'machine_number': client_info[0],
+            'machine_model': client_info[1],
+            'ip_address': client_info[2]
+        })
 #处理提交的表单数据
 @app.route('/api/add_daily_report', methods=['POST'])
 def add_daily_report():
+
+    
     data = request.json
 
     report_date = data.get('report_date')
@@ -133,7 +134,7 @@ def update_client():
     conn = get_db_copier_connection()
     cursor = conn.cursor()
 
-    cursor.execute(f'SELECT `機號`, `IP位置` FROM `CLIENT_{table_name}` WHERE `客戶名稱` = %s', (client_name,))
+    cursor.execute(f'SELECT `機號`, `IP位置` FROM `client_{table_name}` WHERE `客戶名稱` = %s', (client_name,))
     client_info = cursor.fetchone()
 
     if not client_info:
@@ -156,7 +157,7 @@ def update_client():
     
     if update_fields:
         update_values.append(client_name)
-        update_sql = f'UPDATE `CLIENT_{table_name}` SET {", ".join(update_fields)} WHERE `客戶名稱` = %s'
+        update_sql = f'UPDATE `client_{table_name}` SET {", ".join(update_fields)} WHERE `客戶名稱` = %s'
         cursor.execute(update_sql, tuple(update_values))
         conn.commit()
 
