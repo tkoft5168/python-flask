@@ -13,10 +13,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // 设置结束日期为当前日期
         const queryToday = new Date().toISOString().split('T')[0];
         document.getElementById('endDate').value = queryToday;
-
+        if (reportCounterModal){
         // 更新客户名称列表
         queryFetchClientNames();
-
+        }
         // 处理查询按钮点击事件
         document.getElementById("queryButton").addEventListener("click", function(e) {
             e.preventDefault(); // 防止表单的默认提交行为
@@ -28,9 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: formData
             })
             .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+      
         return response.json();
     })
             .then(data => {
@@ -71,6 +69,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 // 顯示結果部分
                 document.getElementById("result").style.display = "block";
             }
+             // 重置输入框
+             document.getElementById('customerName').value = '';
+
+             document.getElementById('endDate').value = queryToday; // 重新设置结束日期为当前日期
         })
         .catch(error => {
             console.error("Error:", error);
@@ -85,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 获取数据库中的客户名称
 function queryFetchClientNames() {
-    return fetch('/api/get_client_names')
+    fetch('/api/get_reportcounterclient_names')
         .then(response => response.json())
         .then(data => {
             if (data.error) {
@@ -100,11 +102,13 @@ function queryFetchClientNames() {
                 option.value = name;
                 dataList.appendChild(option);
             });
+
         })
         .catch(err => {
             console.error('無法讀取客戶名稱列表:', err);
             showErrorModal('無法讀取客戶名稱列表，請稍候再試！');
         });
+        return Promise.resolve();  // 确保返回一个 Promise
 }
 
 
@@ -133,9 +137,7 @@ if (areaReportCounterForm) {
             body: formData
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+           
             return response.json(); // 返回 JSON 数据
         })
         .then(data => {
@@ -149,10 +151,14 @@ if (areaReportCounterForm) {
                     displaySingleClientData(data);
                 }
             }
+              // 重置输入框
+              document.getElementById('customerName').value = '';
+
+              document.getElementById('endDate').value = queryToday; // 重新设置结束日期为当前日期
         })
         .catch(error => {
             console.error("Error:", error);
-            showErrorModal(error.message); // 显示错误消息
+            showErrorModal("查無資料！"); // 显示错误消息
         })
         .finally(() => {
             hideLoadingIndicator(); // 隐藏加载指示器
@@ -187,6 +193,8 @@ function displaySingleClientData(data) {
     document.getElementById("areaCounterResult").style.display = "block";
     document.getElementById("areaReportCounterTable").style.display = "table";
     document.getElementById("multipleClientsTable").style.display = "none";
+    
+
 }
 
 function displayMultipleClientsData(data) {

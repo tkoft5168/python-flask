@@ -133,7 +133,7 @@ function saveEditedReport() {
 }
 
 function queryFetchClientNames() {
-    fetch('/api/get_client_names')
+    fetch('/api/get_queryreportclient_names')
         .then(response => response.json())
         .then(data => {
             const dataList = document.getElementById('customerNameList');
@@ -148,6 +148,7 @@ function queryFetchClientNames() {
             console.error('無法讀取客戶名稱列表:', err);
             showErrorModal('無法讀取客戶名稱列表，請稍後再試！');
         });
+        return Promise.resolve();  // 确保返回一个 Promise
 }
 
 

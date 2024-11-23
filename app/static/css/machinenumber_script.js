@@ -17,7 +17,7 @@ function machineNumberList() {
         }
     })
     .then(response => {
-        console.log('Response:', response); // 调试信息
+       
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -56,7 +56,7 @@ function machineNumberList() {
                     console.error('搜尋失敗:', data.error);
                 } else {
                     populateSearchButtonMachineNumberTable(data.results);
-                    setupPagination(data.results.length);
+
                 }
             })
             .catch(error => {
@@ -252,9 +252,11 @@ function saveEditmachineNumber(machinenumber) {
             closeModal('machineNumberModal');
             showErrorModal(data.error);
         } else {
-            showSuccessModal(data.success);
             closeModal('machineNumberModal');
+            showSuccessModal(data.success).then(() =>{
+            
             machineNumberList();
+            });
         }
     })
     .catch(error => {
@@ -277,8 +279,10 @@ function deleteMachineNumber(machineNumber) {
         if (data.error) {
             showErrorModal(data.error);
         } else {
-            showSuccessModal(data.success);
+            showSuccessModal(data.success).then(() =>{
+            
            machineNumberList();
+            });
         }
     })
     .catch(error => {
@@ -412,6 +416,14 @@ function populateSearchButtonMachineNumberTable(query) {
             deleteMachineNumber(machineNumber);
         });
     });
+
+       // 更新 customerData 以便分页能使用搜索结果
+       customerData = query;
+
+       // 重置 currentPage 为 1 并根据新数据设置分页
+       currentPage = 1;
+       setupPagination();
+       displayPage(currentPage);
 }
 
 

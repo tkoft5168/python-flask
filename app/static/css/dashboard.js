@@ -1,4 +1,22 @@
 document.addEventListener('DOMContentLoaded', function () {
+
+    let logoutTimer;
+
+// 重置计时器的函数
+function resetLogoutTimer() {
+    clearTimeout(logoutTimer);
+    // 设置5分钟（300,000毫秒）的无操作自动登出时间
+    logoutTimer = setTimeout(() => {
+        alert("因長時間無操作，您將被自動登出。");
+        window.location.href = '/'; // 调用后端登出接口
+    }, 300000); // 5分鐘
+}
+
+// 监听用户活动
+window.onload = resetLogoutTimer;
+document.onmousemove = resetLogoutTimer;
+document.onkeypress = resetLogoutTimer;
+document.onscroll = resetLogoutTimer;
     const monthForm = document.getElementById('monthForm');
     if (monthForm){
     const labels = [];

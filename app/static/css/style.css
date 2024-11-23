@@ -5,6 +5,9 @@ body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%; /* 支持旧版浏览器 */
+    
 }
 
 h1, h2, h3 {
@@ -96,4 +99,11 @@ table tr:hover {
     font-size: 16px;
     font-weight: bold;
     color: #3498db;
+}
+
+.report-date-label {
+    margin-left: 12px;
+    font-size: 20px;
+    color: #df5050; /* 可以调整颜色 */
+    font-weight: bold; /* 可以使用更粗的字体 */
 }

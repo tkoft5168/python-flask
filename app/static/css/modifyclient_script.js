@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .then(response => {
-            console.log('Response:', response); // 调试信息
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -61,7 +60,6 @@ document.addEventListener('DOMContentLoaded', function() {
             body: JSON.stringify({ query: query })
         })
         .then(response => {
-            console.log('Response:', response); // 调试信息
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -129,9 +127,21 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.delete-btn').forEach(button => {
             button.addEventListener('click', function () {
                 const customerId = JSON.parse(this.getAttribute('data-customer-id'));
-                deleteCustomer(customerId);
+        
+                // 弹出确认对话框
+              
+                modalDialog('您確定要刪除這個客戶嗎？').then((confirmed) => {
+                if (confirmed) {
+                    // 如果用户确认，执行删除操作
+                    deleteCustomer(customerId);
+                } else {
+                    // 如果用户取消，不执行任何操作
+                    console.log('刪除操作已取消');
+                }
+            });
             });
         });
+        
 
         document.querySelectorAll('.report-btn').forEach(button => {
             button.addEventListener('click', function () {
@@ -177,42 +187,46 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.error) {
                 closeModal('editCustomerModal');
                 showErrorModal(data.error);
-            } else {
-                showSuccessModal(data.success);
+            }   else {
                 closeModal('editCustomerModal');
-                fetchCustomerList();
-            }
-        })
-        .catch(error => {
-            console.error('Error editing customer:', error);
-            closeModal('editCustomerModal');
-            showErrorModal('無法編輯客戶資料');
-        });
-    }
-
-    function deleteCustomer(id) {
-        fetch('/api/delete_customer', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id:id })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                showErrorModal(data.error);
-            } else {
-                showSuccessModal(data.success);
-                fetchCustomerList();
-            }
-        })
-        .catch(error => {
-            console.error('Error deleting customer:', error);
-            closeModal('editCustomerModal');
-            showErrorModal('無法刪除客戶資料');
-        });
-    }
+                  showSuccessModal(data.success).then(() => {
+      
+                  fetchCustomerList();
+               });
+              }
+          })
+          .catch(error => {
+              console.error('Error editing customer:', error);
+              closeModal('editCustomerModal');
+              showErrorModal('無法編輯客戶資料');
+          });
+      }
+  
+      function deleteCustomer(id) {
+          fetch('/api/delete_customer', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ id:id })
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.error) {
+                  showErrorModal(data.error);
+              } else {
+                  showSuccessModal(data.success).then(() => {
+      
+                  fetchCustomerList();
+                 });
+              }
+          })
+          .catch(error => {
+              console.error('Error deleting customer:', error);
+              closeModal('editCustomerModal');
+              showErrorModal('無法刪除客戶資料');
+          });
+      }
 
     function showModal(modalId) {
         const modal = new bootstrap.Modal(document.getElementById(modalId));
@@ -232,45 +246,66 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 document.addEventListener('DOMContentLoaded', function() {
+    const allModifyClientTable = document.getElementById('allModifyClientTable');
+    if(allModifyClientTable){
+    // 初始化时默认加载第一个区域的客户
+    allfetchCustomerList('全區');
+    }
+    const areaTabs = document.getElementById('areaTabs');
 
-const allModifyClientTable = document.getElementById('allModifyClientTable');
+    if (areaTabs) {
+        areaTabs.addEventListener('click', function(e) {
+            if (e.target.tagName === 'BUTTON') {
+                const area = e.target.getAttribute('data-area');
+                
+                // 切换激活状态
+                document.querySelectorAll('#areaTabs .nav-link').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                e.target.classList.add('active');
 
-if (allModifyClientTable) {
-allfetchCustomerList();
-    };
-function allfetchCustomerList() {
-    showLoadingIndicator(); // 显示加载指示器
-    fetchWithTimeout('/api/get_allcustomer_list', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
-        console.log('Response:', response); // 调试信息
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json(); // 返回 JSON 数据
-    })
-    .then(data => {
-        
-        if (data.error) {
-            showErrorModal(data.error);
-        } else {
-            allpopulateCustomerTable(data);
-            
-       }
-    })
-    .catch(error => {
-        console.error('Error fetching customer list:', error);
+                // 根据选择的区域加载客户列表
+                allfetchCustomerList(area);
+            }
+        });
+    }
 
-        showErrorModal('無法獲取客戶列表');
-    })
-    .finally(() => {
-        hideLoadingIndicator(); // 隐藏加载指示器
-    });
-}
+
+
+
+    function allfetchCustomerList(area) { // 默认加载“全區”客户
+        showLoadingIndicator(); // 显示加载指示器
+    
+        // 确定要调用的 API 路径
+        const apiUrl = area === '全區' ? '/api/get_allcustomer_list' : '/api/get_allcustomer_list_by_area';
+    
+        // 发送请求获取客户列表
+        fetchWithTimeout(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(area === '全區' ? {} : { area }) // 若为"全區"不发送 body
+        })
+        .then(response => {
+            return response.json(); // 返回 JSON 数据
+        })
+        .then(data => {
+            if (data.error) {
+                showErrorModal(data.error);
+            } else {
+                allpopulateCustomerTable(data,area); // 使用获取的数据填充表格
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching customer list:', error);
+            showErrorModal('無法獲取客戶列表');
+        })
+        .finally(() => {
+            hideLoadingIndicator(); // 隐藏加载指示器
+        });
+    }
+    
 const allSearchInput = document.getElementById('allSearchInput');
 if (allSearchInput) {
     allSearchInput.addEventListener('input', function() {
@@ -279,19 +314,13 @@ if (allSearchInput) {
     });
 }
 
+
 function filterTable(query) {
     const tableRows = document.querySelectorAll('#allModifyClientTable tbody tr');
     tableRows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        let match = false;
-
-        cells.forEach(cell => {
-            if (cell.textContent.toLowerCase().includes(query)) {
-                match = true;
-            }
-        });
-
-        if (match) {
+        const clientNameCell = row.querySelector('td:nth-child(4)'); // 假設客戶名稱位於第4列
+        
+        if (clientNameCell && clientNameCell.textContent.toLowerCase().includes(query.toLowerCase())) {
             row.style.display = '';  // 顯示符合搜尋條件的行
         } else {
             row.style.display = 'none';  // 隱藏不符合條件的行
@@ -299,28 +328,36 @@ function filterTable(query) {
     });
 }
 
-function allpopulateCustomerTable(data) {
+function allpopulateCustomerTable(data,area) {
     const tableBody = document.querySelector('#allModifyClientTable tbody');
     tableBody.innerHTML = ''; // 清空表格
 
-    // 假设 `allclient_names` 是二维数组
+    // 使用正确的键名 all_client_names
+    if (!Array.isArray(data.allclient_names)) {
+        console.error("all_client_names is not an array or is undefined", data);
+        showErrorModal("無法顯示客戶列表：數據錯誤");
+        return;
+    }
+
+    // 遍历客户数据并填充表格
     data.allclient_names.forEach((client, index) => {
         const row = document.createElement('tr');
-        userClass = data.user_class
-        
+        const userClass = data.user_class;
+
         let actionButtons = '';
-        // 如果用户是管理者，则显示查詢、編輯、删除按钮
-        if (userClass === '管理者') {
+        if (area === '全區' || userClass === '業務') {
+            actionButtons = `<button class="btn btn-info report-btn" data-customer-name="${client[1]}" data-customer-area="${client[0]}">查詢</button>`;
+        } else {
+        if (userClass === '管理者'||area !== '全區') {
             actionButtons = `
                 <button class="btn btn-info report-btn" data-customer-name='${client[1]}' data-customer-area='${client[0]}'>查詢</button>
                 <button class="btn btn-primary edit-btn" data-customer='${JSON.stringify(client)}'>編輯</button>
                 <button class="btn btn-danger delete-btn" data-customer-id='${client[7]}' data-customer-area='${client[0]}'>刪除</button>
             `;
-
+        } else {
+            actionButtons = `<button class="btn btn-info report-btn" data-customer-name='${client[1]}' data-customer-area='${client[0]}'>查詢</button>`;
         }
-        else{actionButtons = `<button class="btn btn-info report-btn" data-customer-name='${client[1]}' data-customer-area='${client[0]}'>查詢</button>
-
-            `;}
+    }
         row.innerHTML = `
             <td>${index + 1}</td>
             <td>${client[7] || ''}</td>
@@ -336,14 +373,13 @@ function allpopulateCustomerTable(data) {
         tableBody.appendChild(row);
     });
 
-    // 绑定按钮事件
-    if (userClass === '管理者') {
-        bindButtonEvents();  // 绑定查詢、編輯、删除按钮事件
-    }
-    else{
+    if (data.user_class === '管理者') {
+        bindButtonEvents();
+    } else {
         salesButtonEvents();
     }
 }
+
 
 function bindButtonEvents() {
     document.querySelectorAll('.edit-btn').forEach(button => {
@@ -366,7 +402,17 @@ function bindButtonEvents() {
         button.addEventListener('click', function () {
             const customerId = this.getAttribute('data-customer-id');
             const area = this.getAttribute('data-customer-area');
-            deleteCustomer(customerId, area);
+            // 弹出确认对话框
+              
+            modalDialog('您確定要刪除這個客戶嗎？').then((confirmed) => {
+                if (confirmed) {
+                    // 如果用户确认，执行删除操作
+                    deleteCustomer(customerId,area);
+                } else {
+                    // 如果用户取消，不执行任何操作
+                    console.log('刪除操作已取消');
+                }
+            });
         });
     });
 
@@ -397,6 +443,7 @@ function openAllCustomerReportPage(customerName,area) {
 
 
 function saveEditCustomer(area,id) {
+
     const newCustomerName = document.getElementById('allEditCustomerName').value || null;
     const newMachineNumber = document.getElementById('allEditCustomerMachineNumber').value || null;
     const newCustomerModel = document.getElementById('allEditCustomerModel').value || null;
@@ -427,9 +474,13 @@ function saveEditCustomer(area,id) {
             closeModal('allEditCustomerModal');
             showErrorModal(data.error);
         } else {
-            showSuccessModal(data.success);
             closeModal('allEditCustomerModal');
-            allfetchCustomerList();
+            showSuccessModal(data.success).then(() =>{
+                 
+
+                allfetchCustomerList(area);
+
+        });
         }
     })
     .catch(error => {
@@ -452,8 +503,10 @@ function deleteCustomer(id,area) {
         if (data.error) {
             showErrorModal(data.error);
         } else {
-            showSuccessModal(data.success);
-            allfetchCustomerList();
+            showSuccessModal(data.success).then(() =>{
+            
+            allfetchCustomerList(area);
+        });
         }
     })
     .catch(error => {

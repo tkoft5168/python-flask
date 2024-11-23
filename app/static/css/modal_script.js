@@ -12,15 +12,31 @@
     }
 
     function showSuccessModal(message) {
-        fetch('/modal/success_modal.html')
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('modalPlaceholder3').innerHTML = html;
-                document.getElementById('successModalMessage').innerText = message;
-                var successModal = new bootstrap.Modal(document.getElementById('successModal'));
-                successModal.show();
-            })
-            .catch(err => console.error('讀取success_modal錯誤:', err));
+        return new Promise((resolve, reject) => {
+            fetch('/modal/success_modal.html')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    document.getElementById('modalPlaceholder3').innerHTML = html;
+                    document.getElementById('successModalMessage').innerText = message;
+                    var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+    
+                    // 监听模态框关闭事件，确保在关闭时执行后续操作
+                    document.getElementById('successModal').addEventListener('hidden.bs.modal', function () {
+                        resolve();  // 在模态框关闭时，resolve Promise
+                    });
+    
+                    successModal.show();  // 显示模态框
+                })
+                .catch(err => {
+                    console.error('讀取success_modal錯誤:', err);
+                    reject(err);  // 如果有错误，拒绝 Promise
+                });
+        });
     }
 
     function modalDialog(message) {
@@ -90,7 +106,7 @@ function hideLoadingIndicator() {
     document.getElementById('loadingIndicator').style.display = 'none';
 }
 
-function fetchWithTimeout(url, options, timeout = 5000) {
+function fetchWithTimeout(url, options, timeout = 60000) {
     return Promise.race([
         fetch(url, options),
         new Promise((_, reject) =>
